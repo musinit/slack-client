@@ -21,6 +21,8 @@ namespace Slack.Client.Models.SlackApi
         public BlockOption[] Options { get; set; }
         [JsonProperty("initial_option")]
         public BlockOption InitialOption { get; set; }
+        [JsonProperty("initial_conversations")]
+        public string[] InitialConversations { get; set; }
         [JsonProperty("initial_options")]
         public BlockOption[] InitialOptions { get; set; }
         [JsonProperty("min_query_length")]

@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿﻿using Newtonsoft.Json;
 using Slack.Client.Models.SlackApi;
 
 namespace Slack.Client.Models

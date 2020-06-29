@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Slack.Client.Models;
 using Slack.Client.Models.SlackApi;
@@ -8,15 +8,15 @@ namespace Slack.Client
     public interface ISlackClient
     {
         /// <summary>
-        /// Simle send message in Slack
+        /// Simple sending message in Slack. Send in test channel, if isTest = true
         /// </summary>
         /// <param name="request"></param>
         /// <param name="isTest"></param>
         /// <returns></returns>
-        Task<bool> SendMessageAsync(SendMessageRequest request, bool isTest = true);
+        Task<bool> SendMessageAsync(SendMessageRequest request, bool isTest = false);
         
         /// <summary>
-        /// Send message in response
+        /// Send response message after simple message (can replace first message by itself)
         /// </summary>
         /// <param name="responseUrl"></param>
         /// <param name="blocks"></param>
@@ -26,14 +26,14 @@ namespace Slack.Client
         Task<SlackResponse> UpdateViewAsync<T>(UpdateViewRequest<T> request, string botToken, string requestUrl = "views.publish");
         
         /// <summary>
-        /// Get slack user by his email
+        /// Get user by his email
         /// </summary>
-        /// <param name="email">user email</param>
+        /// <param name="email">User's email</param>
         /// <returns></returns>
-        Task<SlackUser> GetUserIfExistAsync(string email);
-
+        Task<SlackUser> GetUserIfExistAsync(string appToken, string email);
+        
         /// <summary>
-        /// Get user profile
+        /// Get user profile by his slackId
         /// </summary>
         /// <param name="appToken"></param>
         /// <param name="slackId"></param>
@@ -41,7 +41,7 @@ namespace Slack.Client
         Task<Profile> GetUserProfile(string appToken, string slackId);
 
         /// <summary>
-        /// Get list of profiles
+        /// Get list of user profiles
         /// </summary>
         /// <param name="appToken"></param>
         /// <param name="slackIds"></param>
@@ -49,20 +49,21 @@ namespace Slack.Client
         Task<Profile[]> GetUserProfiles(string appToken, string[] slackIds);
 
         /// <summary>
-        /// Get all users in workspace
+        /// Get all users in workplace
         /// </summary>
+        /// <param name="botToken"></param>
         /// <returns></returns>
-        Task<SlackUser[]> GetAllUsers();
+        Task<SlackUser[]> GetAllUsers(string botToken);
 
         /// <summary>
-        /// For getting bot token of the workspace
+        /// Get user info and hit team info after authorization (adding bot in workplace)
         /// </summary>
         /// <param name="code"></param>
         /// <returns></returns>
         Task<OAuthResponse> Authorize(string code);
         
         /// <summary>
-        /// For getting all members of the conversations
+        /// Get members of conversation
         /// </summary>
         /// <param name="conversationIds"></param>
         /// <param name="appToken"></param>

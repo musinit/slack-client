@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+﻿﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json;
 using System;
@@ -39,7 +39,7 @@ namespace Slack.Client
                     httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", request.AppToken);
                 }
 
-                var channel = await OpenChannelWithUserAsync(request.SlackId, httpClient);
+                var channel = await OpenChannelWithUserAsync(request.AppToken, request.SlackId, httpClient);
                 
                 SlackResponse slackResponse = await SendMessageInChannelAsync(channel.Id,
                     request.Text,
@@ -71,7 +71,7 @@ namespace Slack.Client
                 {
                     Text = "Ачивка открыта!",
                     Blocks = blocks
-                });  
+                }); 
                 var response = await httpClient.PostAsync("", new StringContent(updateViewSerialized, 
                     Encoding.UTF8, "application/json"));
             }
@@ -107,11 +107,11 @@ namespace Slack.Client
             }
         }
 
-        public async Task<SlackUser> GetUserIfExistAsync(string email)
+        public async Task<SlackUser> GetUserIfExistAsync(string appToken, string email)
         {
             using (var httpClient = httpClientFactory.CreateClient(nameof(ISlackClient)))
             {
-                string response = await httpClient.GetStringAsync($"users.lookupByEmail?email={email}");
+                string response = await httpClient.GetStringAsync($"users.lookupByEmail?token={appToken}&email={email}");
                 var userResponse = JsonConvert.DeserializeObject<LookUpUserResponse>(response);
 
                 return userResponse.User;
@@ -158,12 +158,12 @@ namespace Slack.Client
             return result.ToArray();
         }
 
-        private async Task<SlackChannel> OpenChannelWithUserAsync(string userId, HttpClient httpClient)
+        private async Task<SlackChannel> OpenChannelWithUserAsync(string appToken, string userId, HttpClient httpClient)
         {
             string response;
             try
             {
-                response = await httpClient.GetStringAsync($"conversations.open?users={userId}");
+                response = await httpClient.GetStringAsync($"conversations.open?token={appToken}&users={userId}");
             }
             catch (Exception ex)
             {
@@ -219,13 +219,14 @@ namespace Slack.Client
             
         }
 
-        public async Task<SlackUser[]> GetAllUsers()
+        public async Task<SlackUser[]> GetAllUsers(string botToken)
         {
             var limit = 100;
             var nextCursor = "";
             var result = new List<SlackUser>();
             using (var httpClient = httpClientFactory.CreateClient(nameof(ISlackClient)))
             {
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", botToken);
                 do
                 {
                     string response =
@@ -246,10 +247,13 @@ namespace Slack.Client
             using (var httpClient = httpClientFactory.CreateClient())
             {
                 httpClient.BaseAddress = new Uri("https://slack.com");
+                logger.LogInformation($"Trying to authorize with clientId: {Options.ClientId} and clientSecret: {Options.ClientSecret}");
+                Console.WriteLine($"Trying to authorize with clientId: {Options.ClientId} and clientSecret: {Options.ClientSecret}");
                 string response =
                     await httpClient.GetStringAsync(
                         $"api/oauth.v2.access?code={code}&client_id={Options.ClientId}&client_secret={Options.ClientSecret}");
-
+                Console.WriteLine($"Response after authorization: {response}");
+                logger.LogInformation($"Response after authorization: {response}");
                 var oauthResponse = JsonConvert.DeserializeObject<OAuthResponse>(response);
                 return oauthResponse;
             }

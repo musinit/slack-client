@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿﻿using Newtonsoft.Json;
 using Slack.Client.Models.SlackApi;
 
 namespace Slack.Client.Models
@@ -6,6 +6,9 @@ namespace Slack.Client.Models
     [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
     public class SendResponseMessageRequest
     {
+        /// <summary>
+        /// id пользователя, которому будет отправлено сообщение
+        /// </summary>
         [JsonProperty("slackId")]
         public string SlackId { get; set; }
         
